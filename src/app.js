@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 //Dependences imports
 const express = require('express');
 const cors = require('cors');

@@ -5,6 +5,9 @@ const router = express.Router();
 //Local imports
 const packController = require('../controllers/packController');
 const validate = require('../controllers/validator');
+const apiKeyAuth = require('../middleware/apiKeyAuth');
+
+router.use(apiKeyAuth);
 
 
 /**
