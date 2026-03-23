@@ -1,8 +1,11 @@
 //Dependences imports
+const path = require('path');
 const { validationResult } = require('express-validator');
 
 //Local imports
 const pythonExecutor = require('../utils/pythonExecutor');
+
+const PACK_SCRIPT = path.join(__dirname, '..', 'utils', 'ejecutable.py');
 
 
 /**
@@ -22,16 +25,22 @@ const packController = (req, res) => {
       return;
     }
 
-    //console.log(JSON.stringify(req.body))
-    pythonExecutor.executePythonScript('./src/utils/ejecutable.py', JSON.stringify(req.body))
-    .then(function(data) {
+    pythonExecutor
+      .executePythonScript(PACK_SCRIPT, JSON.stringify(req.body))
+      .then(function (data) {
         res.setHeader('Content-Type', 'application/json');
         res.status(200).send(data);
-    })
-    .catch((err)=>{
-        res.setHeader('Content-Type', 'text/html');
-        res.status(500).send(`Failed to execute Python script - ${err}`);
-    });
+      })
+      .catch((err) => {
+        console.error(err);
+        const isProd = process.env.NODE_ENV === 'production';
+        res.status(500).json({
+          error: 'pack_execution_failed',
+          message: isProd
+            ? 'No se pudo completar el empaquetado.'
+            : err.message || String(err),
+        });
+      });
 
 };
 

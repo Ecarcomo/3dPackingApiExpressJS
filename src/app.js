@@ -8,12 +8,29 @@ const apiRouter = require('./routes/router');
  * @description Configure Express middleware and settings
  */
 const app = express();
-app.use(cors({
-  origin: 'http://127.0.0.1:4173', // Your frontend's origin
-}));
+
+const corsOrigin =
+  process.env.CORS_ORIGIN ||
+  'http://localhost:5173';
+const corsOrigins = corsOrigin.split(',').map((s) => s.trim()).filter(Boolean);
+
+app.use(
+  cors({
+    origin:
+      corsOrigins.length <= 1
+        ? corsOrigins[0] || true
+        : corsOrigins,
+  })
+);
+
 const port = process.env.PORT || 5501;
-app.use(express.json());      // Parse JSON body content
-app.use('/api',apiRouter);    // Mount the API routes with express-validator
+app.use(express.json()); // Parse JSON body content
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+app.use('/api', apiRouter); // Mount the API routes with express-validator
 
 
 
